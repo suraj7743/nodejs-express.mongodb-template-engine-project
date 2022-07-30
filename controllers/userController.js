@@ -1,6 +1,7 @@
 const userModel = require("../models/userModel.js");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
+const dotenv = require("dotenv").config({ path: "../config/.env" });
 //bcrypt password
 const securePassword = async (password) => {
   try {
@@ -83,7 +84,7 @@ const loginpage = async (req, res) => {
 const postLogin = async (req, res) => {
   try {
     // const passwordDecrypt = bcrypt.compare(req.body);
-    
+
     const userData = await userModel.findOne({
       name: { $exists: true, $eq: req.body.name },
     });
@@ -112,12 +113,12 @@ const mailVerify = async (name, email, id) => {
   try {
     // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 25,
+      host: process.env.smtpHost,
+      port: process.env.smtpPort,
       secure: false, // true for 465, false for other ports
       auth: {
-        user: "surajbillionare@gmail.com", // generated ethereal user
-        pass: "gptechjekxdzdrra", // generated ethereal password
+        user: process.env.smtpUser, // generated ethereal user
+        pass: process.env.smtpPassword, // generated ethereal password
       },
     });
 
@@ -127,7 +128,7 @@ const mailVerify = async (name, email, id) => {
       to: email, // list of receivers
       subject: "Verification mail ", // Subject line
       text: "Hello world?", // plain text body
-      html: `<P>Hii ${name},please click here to <a href="http://127.0.0.1:8000/login?id=${id}">Verify</a> your mail.</p>`, // html body
+      html: `<P>Hii ${name},please click here to <a href="http://127.0.0.1:${process.env.PORT}/login?id=${id}">Verify</a> your mail.</p>`, // html body
     });
     console.log("Message sent: %s", info.messageId);
   } catch (error) {
